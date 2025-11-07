@@ -1,0 +1,109 @@
+DROP DATABASE IF EXISTS EduLearnDB;
+CREATE DATABASE EduLearnDB;
+USE EduLearnDB;
+
+CREATE TABLE Instructor (
+    InstructorID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE,
+    Expertise VARCHAR(100),
+    JoinDate DATE
+);
+CREATE TABLE Course (
+    CourseID INT AUTO_INCREMENT PRIMARY KEY,
+    Title VARCHAR(150) NOT NULL,
+    Subject VARCHAR(100),
+    Price DECIMAL(8,2),
+    InstructorID INT,
+    FOREIGN KEY (InstructorID) REFERENCES Instructor(InstructorID)
+);
+CREATE TABLE Student (
+    StudentID INT AUTO_INCREMENT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) UNIQUE,
+    Country VARCHAR(50),
+    RegisterDate DATE
+);
+CREATE TABLE Purchase (
+    PurchaseID INT AUTO_INCREMENT PRIMARY KEY,
+    StudentID INT,
+    CourseID INT,
+    PurchaseDate DATE,
+    Amount DECIMAL(8,2),
+    PaymentMethod VARCHAR(50),
+    FOREIGN KEY (StudentID) REFERENCES Student(StudentID),
+    FOREIGN KEY (CourseID) REFERENCES Course(CourseID)
+);
+INSERT INTO Instructor (Name, Email, Expertise, JoinDate) VALUES
+('Dr. Anita Sharma', 'anita@edulearn.com', 'Data Science', '2023-01-15'),
+('Rahul Mehta', 'rahul@edulearn.com', 'Web Development', '2023-03-22'),
+('Sneha Patel', 'sneha@edulearn.com', 'Cybersecurity', '2022-11-05');
+INSERT INTO Course (Title, Subject, Price, InstructorID) VALUES
+('Python for Beginners', 'Data Science', 1999.00, 1),
+('Full Stack Web Development', 'Programming', 2999.00, 2),
+('Ethical Hacking Fundamentals', 'Cybersecurity', 2499.00, 3),
+('Machine Learning Basics', 'Data Science', 3499.00, 1),
+('ReactJS Advanced', 'Programming', 2799.00, 2);
+
+INSERT INTO Student (Name, Email, Country, RegisterDate) VALUES
+('Rohit Kumar', 'rohit@student.com', 'India', '2024-01-10'),
+('Priya Singh', 'priya@student.com', 'USA', '2024-02-15'),
+('Aditya Verma', 'aditya@student.com', 'UK', '2024-03-20'),
+('Simran Kaur', 'simran@student.com', 'Canada', '2024-04-05'),
+('Arjun Das', 'arjun@student.com', 'India', '2024-05-10');
+
+INSERT INTO Purchase (StudentID, CourseID, PurchaseDate, Amount, PaymentMethod) VALUES
+(1, 1, '2024-02-01', 1999.00, 'Credit Card'),
+(2, 2, '2024-03-10', 2999.00, 'PayPal'),
+(3, 3, '2024-04-12', 2499.00, 'Credit Card'),
+(1, 4, '2024-05-15', 3499.00, 'UPI'),
+(4, 5, '2024-06-01', 2799.00, 'Debit Card'),
+(5, 1, '2024-07-18', 1999.00, 'UPI'),
+(2, 5, '2024-08-25', 2799.00, 'Credit Card');
+
+SELECT SUM(Amount) AS Total_Revenue FROM Purchase;
+SELECT c.Title, SUM(p.Amount) AS Course_Revenue
+FROM Purchase p
+JOIN Course c ON p.CourseID = c.CourseID
+GROUP BY c.Title
+ORDER BY Course_Revenue DESC;
+SELECT c.Title, COUNT(p.PurchaseID) AS Total_Sales
+FROM Purchase p
+JOIN Course c ON p.CourseID = c.CourseID
+GROUP BY c.Title
+ORDER BY Total_Sales DESC
+LIMIT 1;
+SELECT i.Name AS Instructor, SUM(p.Amount) AS Total_Earnings
+FROM Purchase p
+JOIN Course c ON p.CourseID = c.CourseID
+JOIN Instructor i ON c.InstructorID = i.InstructorID
+GROUP BY i.Name
+ORDER BY Total_Earnings DESC
+LIMIT 1;
+SELECT Country, COUNT(StudentID) AS Total_Students
+FROM Student
+GROUP BY Country;
+
+SELECT 
+    p.PurchaseID,
+    s.Name AS Student_Name,
+    s.Email AS Student_Email,
+    s.Country,
+    c.Title AS Course_Title,
+    c.Subject,
+    c.Price AS Course_Price,
+    i.Name AS Instructor_Name,
+    i.Expertise AS Instructor_Expertise,
+    p.Amount AS Purchase_Amount,
+    p.PaymentMethod,
+    p.PurchaseDate
+FROM Purchase p
+JOIN Student s ON p.StudentID = s.StudentID
+JOIN Course c ON p.CourseID = c.CourseID
+JOIN Instructor i ON c.InstructorID = i.InstructorID
+ORDER BY p.PurchaseDate;
+
+
+
+
+
